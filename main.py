@@ -7,16 +7,19 @@ from lives_tracker import LivesTracker
 WIDTH,HEIGHT = 1080, 720
 FPS = 60
 
+pygame.font.init()
+
 score = 0
 streak = 0
 
-pygame.font.init()
 
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Guitar Hero")
 
 RECT = pygame.Rect(385,0, 280, 720)
 venue_frames = [pygame.image.load(os.path.join('Assets/GIF', f'frame_{i:02}_delay-0.1s.png')) for i in range(45)]
+
+lives_tracker = LivesTracker(WIN)
 
 def draw_window(venue_frame):
     VENUE = pygame.transform.scale(venue_frame, (1080,720))
@@ -45,7 +48,6 @@ def draw_window(venue_frame):
     for rect in map_rect:
         button = pygame.image.load(os.path.join('Assets', rect[1]))
         WIN.blit(button, rect[0])
-        # pygame.draw.rect(WIN,(255,255,255),rect)
         rect[0].y += 3
         if rect[0].y >= 720:
             lives_tracker.lose_life()
@@ -99,11 +101,16 @@ def load(map):
 
 map_rect = load('Eslabo Armado, Peso Pluma - Ella Baila Sola')
 
-lives_tracker = LivesTracker(WIN)
 
+def display_game_over(WIN):
+    font = pygame.font.Font("PixeloidSans-mLxMm.ttf", 60)
+    game_over_text = font.render('Game Over', True, (255, 0, 0))
+    WIN.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - game_over_text.get_height() // 2))
+    pygame.display.update()
 
 def main():
     frame_count = 0
+    game_over = False
 
     clock = pygame.time.Clock()
     run = True
@@ -112,11 +119,20 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+    
+        if lives_tracker.is_game_over():
+            game_over = True
+            display_game_over(WIN)
+            break
 
         current_frame = venue_frames[int (frame_count/10) % len(venue_frames)]
         frame_count += 1
 
         draw_window(current_frame)
+
+    if game_over:
+        pygame.time.wait(3000)
+
     pygame.quit()
 
 if __name__ == "__main__":

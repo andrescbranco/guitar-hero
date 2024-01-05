@@ -2,8 +2,6 @@ import pygame
 
 class LivesTracker:
 
-    font_path = "PixeloidSans-mLxMm.ttf" 
-
     def __init__(self, screen, initial_lives=10):
         self.screen = screen
         self.lives = initial_lives
@@ -19,6 +17,9 @@ class LivesTracker:
         if self.lives > 0:
             self.lives -= 1
             self._prep_text()
+
+    def is_game_over(self):
+        return self.lives <= 0
 
     def draw(self):
         self.screen.blit(self.text_image, (20, 10))
